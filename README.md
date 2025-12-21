@@ -1,83 +1,98 @@
 # Trade Tracker (React)
 
-Lightweight React prototype for a trade checklist/dashboard. This repository contains a small Vite + React app used to prototype pages and UI for tracking trades, balances and quick statistics.
+A lightweight Vite + React prototype for a trade checklist, summary, and basic analytics.
 
-This README documents the initial work done, how to run the project locally, and troubleshooting steps.
+This repository contains a small frontend app (trade-tracker) that lets a user evaluate trades across multiple timeframe tiles, toggle checklist properties, save a summary to Supabase, and view history and a dashboard.
 
-## What I implemented so far
+## Current features
 
-- Project scaffolded with Vite + React.
-- Pages: `Landing`, `History`, `Dashboard` (basic placeholder data and layout).
-- Routing: `src/App.jsx` wired with React Router (routes for `/landing`, `/history`, `/dashboard`).
-- Components: `Header`, `Footer`, `Tile`, `Property` (toggle control), and `Tile` usage on the landing page.
-- Chart example: `Dashboard` uses Chart.js + react-chartjs-2 to render a sample line chart.
-- Styling: single global stylesheet at `src/index.css` styled to a dark, glassy theme with accent colors. Header and footer have been styled, header links include inline SVG icons, and tiles have an accent stripe to stand out from the page background.
-- Toggle control: interactive `Property` component with a small SVG toggle where the small knob changes color when toggled.
+- Landing page with multiple timeframe `Tile` components. Each tile contains `Property` rows with toggles.
+- A special `Stop Loss & Take Profit` tile: its toggles (Stop Loss, Take Profit) are saved as boolean fields rather than a percentage, and the tile does not show a percentage in the UI.
+- Summary card that aggregates tile percentages and shows an overall score. Summary displays icons for Stop Loss / Take Profit instead of ON/OFF.
+- Save summary to Supabase `trades` table (payload includes `tiles` JSON and top-level `stop_loss` and `take_profit` boolean fields).
+- History page shows saved trades in a modern card layout and renders stop/take icons from saved data.
+- Dashboard renders aggregated metrics and a small chart derived from saved trades (falls back to sample data if none found).
+- Supabase-based authentication (sign-up / sign-in / sign-out). Protected routes enforce auth for Landing, History, and Dashboard.
 
-## How to run
+## Important files
 
-Prerequisites: Node.js 16+ (LTS recommended) and npm.
+- `src/pages/Landing.jsx` — main checklist UI and tiles grid
+- `src/components/Tile.jsx` — tile component (computes totals and reports property state)
+- `src/components/Property.jsx` — toggle control for each property
+- `src/components/Summary.jsx` — summary UI and save-to-Supabase logic
+- `src/pages/History.jsx` — displays saved trades (card layout)
+- `src/pages/Dashboard.jsx` — aggregates trades into a simple chart and balances
+- `src/services/tradeServices.js` — Supabase queries (getTradesByUser, createTrade, deleteTrade, saveTradeWithProfileCheck)
+- `src/contexts/AuthContext.jsx` — Supabase auth wrapper
+- `src/lib/supabaseClient.js` — Supabase client using Vite env vars
+- `src/index.css` — global styles and small UI theming
 
-1. Install dependencies
+## Supabase setup (quick)
+
+1. Create a project at https://app.supabase.com
+2. In Project Settings → API copy the `URL` and `anon` key.
+3. Add environment variables in `trade-tracker/.env`:
+
+```
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+4. Create the `profiles` and `trades` tables in the SQL editor. Minimal schema:
+
+```sql
+-- profiles table (user metadata)
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id uuid PRIMARY KEY,
+  email text,
+  display_name text,
+  avatar_url text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- trades table
+CREATE TABLE IF NOT EXISTS public.trades (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  tiles jsonb NOT NULL,
+  overall numeric,
+  stop_loss boolean DEFAULT false,
+  take_profit boolean DEFAULT false,
+  notes text,
+  pnl numeric DEFAULT 0,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_trades_user_id ON public.trades (user_id);
+CREATE INDEX IF NOT EXISTS idx_trades_created_at ON public.trades (created_at DESC);
+```
+
+(If you already have `trades`, use ALTER TABLE to add `stop_loss` and `take_profit`.)
+
+## Run locally
+
+Prereqs: Node.js 16+ and npm
 
 ```powershell
 cd trade-tracker
 npm install
-```
-
-2. Start dev server
-
-```powershell
+# add .env with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
 npm run dev
 ```
 
-Open the dev URL printed by Vite (usually `http://localhost:5173`).
+Open the dev URL (Vite prints it — typically `http://localhost:5173`).
 
-## Files of interest
+## Notes on behavior
 
-- `src/main.jsx` — app entry (mounts React)
-- `src/App.jsx` — routing
-- `src/pages/Landing.jsx` — landing / tile grid
-- `src/pages/History.jsx` — trade history mockup
-- `src/pages/Dashboard.jsx` — sample balances + Line chart
-- `src/components/Header.jsx`, `Footer.jsx` — top and bottom bar
-- `src/components/Tile.jsx`, `src/components/Property.jsx` — tile and property row with toggle
-- `src/index.css` — application stylesheet and theme
+- The `Stop Loss & Take Profit` tile saves booleans in the `tiles` JSON and also populates top-level `stop_loss` and `take_profit` columns (if available in your DB schema).
+- Summary's Save button requires a signed-in user. The `tradeServices.saveTradeWithProfileCheck` helper attempts to create a minimal profile row when missing and then inserts the trade.
+- History reads saved trades and renders stop/take icons from the saved JSON; you can add RLS policies to restrict access to row owners if using Supabase Auth.
 
-## Known issues / notes
+## Next improvements (suggestions)
 
-- The project uses local inline SVGs for icons that inherit `currentColor`. Styling is in `src/index.css`.
-- If React hooks runtime errors appear (e.g. "useRef of null") check for mismatched React versions. Run `npm ls react react-dom` to verify only one copy is installed.
-- If imports fail (e.g. `react-router-dom` or `react-chartjs-2`), re-run `npm install` inside the `trade-tracker` folder and check `package.json`.
+- Add DB trigger to copy stopLoss/takeProfit from tiles JSON into top-level columns automatically.
+- Normalize `tiles` into a `trade_tiles` table for easier filtering and reporting.
+- Add unit tests (Jest + React Testing Library) for Tile and Property components.
+- Improve visual accessibility (aria labels/tooltips) for toggle controls and status icons.
 
-## Next steps / suggestions
-
-- Add unit tests for `Property` and `Tile` components (Jest + React Testing Library).
-- Convert inline SVG icons to a small shared `icons/` component for reuse.
-- Replace placeholder sample data with real API integrations.
-- Break stylesheet into component-level CSS or use CSS Modules / Tailwind for maintainability.
-
----
-
-If you want, I can also:
-
-- Run the dev server and capture console output.
-- Revert any specific files to their prior committed state.
-- Add a minimal GitHub Actions workflow for lint/test.
-
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+If you want any of the next improvements implemented (trigger, normalization, tests, or UI accessibility), tell me which one and I will implement it.
