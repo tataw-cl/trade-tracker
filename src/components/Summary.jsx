@@ -11,10 +11,10 @@ export default function Summary({ tiles = [] }) {
 
   let message = "Neutral performance";
   // Simple thresholds for message
-  if (overall >= 70) message = "Excellent overall — strong positive";
-  else if (overall >= 50) message = "Good overall — positive trend";
-  else if (overall >= 30) message = "Fair overall — watch closely";
-  else message = "Weak overall — needs attention";
+  if (overall >= 80) message = "High Probability Trade — Take it";
+  else if (overall >= 60)
+    message = "Medium Probability — Only if Market Conditions are Ideal";
+  else message = "Weak overall — Skip the trade";
 
   const [saving, setSaving] = React.useState(false);
   const [status, setStatus] = React.useState(null);
@@ -184,7 +184,7 @@ export default function Summary({ tiles = [] }) {
               !tiles || tiles.length === 0 ? "No tiles to save" : "Save summary"
             }
           >
-            {saving ? "Saving..." : "Save summary"}
+            {saving ? "Saving..." : "Save Trade"}
           </button>
           {status && (
             <div className={`save-status ${status.ok ? "ok" : "err"}`}>

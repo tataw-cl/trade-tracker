@@ -9,59 +9,40 @@ export default function Landing() {
   // state to hold tile data
   const [tiles, setTiles] = React.useState([
     {
-      name: "WEEKLY",
+      name: "1D (Daily Context - Macro Bias)",
       percentageValue: 0,
       properties: [
         { label: "Trend", value: "+10%" },
-        { label: "At AOI/Rejected", value: "+10%" },
-        { label: "Touching EMA", value: "+5%" },
-        { label: "Round Psychological Level", value: "+5%" },
-        { label: "Rejection From Previous Structure", value: "+10%" },
-        { label: "Candlestick Rejection From AOI", value: "+10%" },
-        { label: "Break & Retest/Head & Shoulders Pattern", value: "+10%" },
+        { label: "EMA Alignment", value: "+10%" },
+        { label: "Supply/Demand zone", value: "+10%" },
       ],
     },
     {
-      name: "DAILY",
+      name: "4H (intermediate Context- Confirmatioon)",
       percentageValue: 0,
       properties: [
         { label: "Trend", value: "+10%" },
-        { label: "At AOI/Rejected", value: "+10%" },
-        { label: "Touching EMA", value: "+5%" },
-        { label: "Round Psychological Level", value: "+5%" },
-        { label: "Rejection From Previous Structure", value: "+10%" },
-        { label: "Candlestick Rejection From AOI", value: "+10%" },
-        { label: "Break & Retest/Head & Shoulders Pattern", value: "+10%" },
+        { label: "Supply/Demand zone", value: "+10%" },
+        { label: "BOS(Break Of Structure)", value: "+10%" },
       ],
     },
     {
-      name: "4H",
+      name: "1H (Execution prep - ICC Core)",
       percentageValue: 0,
       properties: [
-        { label: "Trend", value: "+10%" },
-        { label: "At AOI/Rejected", value: "+10%" },
-        { label: "Touching EMA", value: "+5%" },
-        { label: "Round Psychological Level", value: "+5%" },
-        { label: "Rejection From Previous Structure", value: "+10%" },
-        { label: "Candlestick Rejection From AOI", value: "+10%" },
-        { label: "Break & Retest/Head & Shoulders Pattern", value: "+10%" },
-      ],
-    },
-    {
-      name: "2H, 1H, 30m",
-      percentageValue: 0,
-      properties: [
-        { label: "Trend", value: "+10%" },
-        { label: "Touching EMA", value: "+5%" },
-        { label: "Break & Retest/Head & Shoulders Pattern", value: "+10%" },
+        { label: "Trend", value: "+5%" },
+        { label: "EMA Alignment", value: "+5%" },
+        { label: "Round Psychological level", value: "+5%" },
+        { label: "Correction/Retest", value: "+10%" },
+        { label: "Order Block Filled", value: "10%" },
       ],
     },
     {
       name: "ENTRY SIGNAL",
       percentageValue: 0,
       properties: [
-        { label: "SOS", value: "+10%" },
-        { label: "Engulfing Candlestick(30m,1H,2H,4H)", value: "+10%" },
+        { label: "SOS(Shift Of Structure)", value: "+5%" },
+        { label: "EMA filter (15m,30m,1H)", value: "+5%" },
       ],
     },
     {

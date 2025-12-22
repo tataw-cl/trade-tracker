@@ -87,25 +87,21 @@ export const tradeServices = {
   // Ensure a profile exists for userId (optional) then create the trade
   saveTradeWithProfileCheck: async (userId, tradePayload) => {
     try {
-      // Try to find an existing profile row
-      const { data: profile, error: selErr } = await supabase
+      // Try to ensure a minimal profile row exists. Insert only the `id` field
+      // because some schemas don't have `username` or other columns.
+      const { error: upsertErr } = await supabase
         .from("profiles")
-        .select("id")
-        .eq("id", userId)
-        .single();
+        .upsert([{ id: userId }], { onConflict: "id" });
 
-      if (!profile) {
-        // Insert a minimal profile record if none exists
-        const { data: ins, error: insErr } = await supabase
-          .from("profiles")
-          .insert([
-            { id: userId, username: `user_${String(userId).slice(0, 5)}` },
-          ]);
-        if (insErr) console.warn("Could not create profile:", insErr);
+      if (upsertErr) {
+        console.error("Could not ensure profile exists:", upsertErr);
+        // If profile can't be created, abort so we don't violate FK on trades
+        throw upsertErr;
       }
     } catch (err) {
-      // non-fatal: continue to attempt creating trade
-      console.warn("Profile check failed (continuing):", err);
+      // Stop execution and surface the error so the caller can handle it
+      console.warn("Profile upsert failed:", err);
+      throw err;
     }
 
     // now save trade; merge user_id to payload to be safe

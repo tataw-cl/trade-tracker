@@ -631,11 +631,11 @@ nav a.active {
 /* Summary save button styles  */
 .summary-actions {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  justify-content: center;
+  margin: auto;
 }
 .save-btn {
-  padding: 8px 12px;
+  padding: 24px 30px;
   border-radius: 10px;
   font-weight: 700;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
