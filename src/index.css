@@ -631,8 +631,11 @@ nav a.active {
 /* Summary save button styles  */
 .summary-actions {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   margin: auto;
+  gap: 15px;
+  align-items: center;
 }
 .save-btn {
   padding: 24px 30px;
@@ -649,6 +652,7 @@ nav a.active {
 }
 .save-status {
   font-size: 0.95rem;
+  font-weight: 600;
 }
 .save-status.ok {
   color: #34d399; /* green */
