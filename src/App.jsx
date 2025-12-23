@@ -10,44 +10,49 @@ import PrivateRoute from "./components/PrivateRoute";
 import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorPage from "./pages/ErrorPage";
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/landing" replace />} />
-          <Route
-            path="/landing"
-            element={
-              <PrivateRoute>
-                <Landing />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/history"
-            element={
-              <PrivateRoute>
-                <History />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Navigate to="/landing" replace />} />
+            <Route
+              path="/landing"
+              element={
+                <PrivateRoute>
+                  <Landing />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <PrivateRoute>
+                  <History />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-        </Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/error" element={<ErrorPage />} />
+          </Routes>
+        </ErrorBoundary>
       </BrowserRouter>
     </AuthProvider>
   );

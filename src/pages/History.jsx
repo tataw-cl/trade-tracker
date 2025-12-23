@@ -9,6 +9,7 @@ export default function History() {
   const { user } = useAuth();
   const [trades, setTrades] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
     const fetch = async () => {
@@ -18,7 +19,7 @@ export default function History() {
         const data = await tradeServices.getTradesByUser(user.id);
         setTrades(data || []);
       } catch (err) {
-        console.error("Failed to load trades:", err);
+        setError("Failed to load trades.");
       } finally {
         setLoading(false);
       }
@@ -29,13 +30,12 @@ export default function History() {
   const totalPnL = trades.reduce((sum, t) => sum + (Number(t.pnl) || 0), 0);
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this trade? This cannot be undone.")) return;
+    if (!window.confirm("Delete this trade? This cannot be undone.")) return;
     try {
       await tradeServices.deleteTradeById(id);
       setTrades((s) => s.filter((x) => x.id !== id));
     } catch (err) {
-      console.error("Delete failed", err);
-      alert("Failed to delete trade. See console for details.");
+      setError("Failed to delete trade.");
     }
   };
 
@@ -146,6 +146,7 @@ export default function History() {
               ))}
             </div>
           )}
+          {error && <div className="page-error">{error}</div>}
         </section>
 
         <div className="footer-spacer" />

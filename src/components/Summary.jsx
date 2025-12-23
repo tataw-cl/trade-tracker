@@ -86,11 +86,9 @@ export default function Summary({ tiles = [] }) {
         created_at: new Date().toISOString(),
       };
 
-      console.log("Saving trade payload:", payload);
       await tradeServices.saveTradeWithProfileCheck(user.id, payload);
       setStatus({ ok: true, msg: "Trade saved successfully!" });
     } catch (err) {
-      console.error("Database Error:", err);
       let userFriendlyMsg = "Something went wrong. Please try again.";
       const code = err?.code || err?.status || null;
       const msg = err?.message || err?.error_description || String(err);

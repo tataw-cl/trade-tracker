@@ -8,10 +8,7 @@ export const tradeServices = {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching trades:", error);
-      throw error;
-    }
+    if (error) throw error;
     return data;
   },
 
@@ -23,11 +20,7 @@ export const tradeServices = {
       .eq("id", id)
       .single();
 
-    if (error) {
-      console.error("Error fetching trade by ID:", error);
-      throw error;
-    }
-
+    if (error) throw error;
     return data;
   },
 
@@ -39,10 +32,7 @@ export const tradeServices = {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching trades by user:", error);
-      throw error;
-    }
+    if (error) throw error;
     return data;
   },
 
@@ -50,11 +40,7 @@ export const tradeServices = {
   deleteTradeById: async (id) => {
     const { data, error } = await supabase.from("trades").delete().eq("id", id);
 
-    if (error) {
-      console.error("Error deleting trade by ID:", error);
-      throw error;
-    }
-
+    if (error) throw error;
     return data;
   },
 
@@ -65,10 +51,7 @@ export const tradeServices = {
       .update(updatedFields)
       .eq("id", id);
 
-    if (error) {
-      console.error("Error updating trade by ID:", error);
-      throw error;
-    }
+    if (error) throw error;
     return data;
   },
 
@@ -77,11 +60,7 @@ export const tradeServices = {
   createTrade: async (tradeData) => {
     const { data, error } = await supabase.from("trades").insert([tradeData]);
 
-    if (error) {
-      console.error("Error creating new trade:", error);
-      throw error;
-    }
-
+    if (error) throw error;
     return data;
   },
   // Ensure a profile exists for userId (optional) then create the trade
@@ -94,13 +73,11 @@ export const tradeServices = {
         .upsert([{ id: userId }], { onConflict: "id" });
 
       if (upsertErr) {
-        console.error("Could not ensure profile exists:", upsertErr);
         // If profile can't be created, abort so we don't violate FK on trades
         throw upsertErr;
       }
     } catch (err) {
       // Stop execution and surface the error so the caller can handle it
-      console.warn("Profile upsert failed:", err);
       throw err;
     }
 
@@ -109,14 +86,7 @@ export const tradeServices = {
       .from("trades")
       .insert([{ ...tradePayload, user_id: userId }]);
 
-    if (error) {
-      console.error(
-        "Error creating trade in saveTradeWithProfileCheck:",
-        error
-      );
-      throw error;
-    }
-
+    if (error) throw error;
     return data;
   },
 };

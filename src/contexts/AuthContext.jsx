@@ -18,7 +18,8 @@ export function AuthProvider({ children }) {
         if (error) throw error;
         setUser(session?.user ?? null);
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        // Initialization failed; keep user as null so UI can handle unauthenticated state
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -62,7 +63,7 @@ export function AuthProvider({ children }) {
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) console.error("Error signing out:", error);
+    if (error) throw error;
   };
 
   const value = {

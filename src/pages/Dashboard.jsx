@@ -31,6 +31,7 @@ export default function Dashboard() {
 
   const [trades, setTrades] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
     const fetch = async () => {
@@ -45,7 +46,7 @@ export default function Dashboard() {
           setTrades(data || []);
         }
       } catch (err) {
-        console.error("Failed to load trades for dashboard:", err);
+        setError("Failed to load trades for dashboard.");
         setTrades([]);
       } finally {
         setLoading(false);
@@ -194,6 +195,8 @@ export default function Dashboard() {
             />
           </div>
         </section>
+
+        {error && <div className="page-error">{error}</div>}
 
         <section className="quick-stats">
           <h2>Quick stats</h2>
