@@ -47,7 +47,7 @@ export default function History() {
         <div className="page-header">
           <h1>Trade History</h1>
           <div className="page-actions">
-            <Link to="/new" className="btn btn-primary">
+            <Link to="/landing" className="btn btn-primary">
               Record trade
             </Link>
           </div>
