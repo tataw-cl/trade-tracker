@@ -6,6 +6,15 @@ import { useAuth } from "../contexts/AuthContext";
 // Props: tiles: Array<{ name: string, percentageValue: number }>
 // Renders individual summary lines and overall percentage + message
 export default function Summary({ tiles = [] }) {
+  const shortLabel = (name) => {
+    if (!name) return "";
+    const s = String(name).trim();
+    // common patterns: start with timeframe like '1D', '4H', '1H', 'ENTRY SIGNAL', etc.
+    const m = s.match(/^(\d+\w?|ENTRY SIGNAL|Stop Loss & Take Profit)\b/i);
+    if (m) return m[0];
+    // fallback: first 3 words
+    return s.split(/\s+/).slice(0, 3).join(" ");
+  };
   const total = tiles.reduce((s, t) => s + Number(t?.percentageValue || 0), 0);
   const overall = tiles && tiles.length ? total : 0;
 
@@ -111,7 +120,9 @@ export default function Summary({ tiles = [] }) {
             <div key={i} className="S-property" title={t.name}>
               <div className="property-left">
                 <div className="property-label">
-                  <span className="truncate">{t.name}</span>
+                  <span className="short-label truncate">
+                    {shortLabel(t.name)}
+                  </span>
                 </div>
               </div>
               <div className="property-right">

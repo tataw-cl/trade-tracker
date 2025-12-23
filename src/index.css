@@ -276,6 +276,13 @@ nav {
   .mobile-hamburger {
     display: none;
   }
+  /* Summary: show short labels on small screens */
+  .S-property .full-label {
+    display: none;
+  }
+  .S-property .short-label {
+    display: inline-block;
+  }
   .mobile-menu {
     display: none !important;
   }
@@ -937,9 +944,6 @@ nav {
   max-width: 160px;
 }
 @media (max-width: 640px) {
-  .header-email .email-text {
-    display: none;
-  }
   .nav-right {
     padding: 6px;
   }
@@ -1092,6 +1096,13 @@ footer a:hover {
 @media (min-width: 640px) {
   /* Small screens (sm) - tablets in portrait */
   #app {
+    /* Desktop: show full labels and hide short labels */
+    .S-property .full-label {
+      display: inline-block;
+    }
+    .S-property .short-label {
+      display: none;
+    }
     padding: 28px;
   }
   .tile-container {
