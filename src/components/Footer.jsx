@@ -1,7 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = ({
-  company = "Your Company",
+  company = "Trade Tracker",
   links = [
     { label: "Home", href: "/landing" },
     { label: "About", href: "/about" },
@@ -116,9 +117,15 @@ const Footer = ({
           >
             {links.map((l) => (
               <li key={l.href}>
-                <a href={l.href} style={styles.link}>
-                  {l.label}
-                </a>
+                {String(l.href || "").startsWith("/") ? (
+                  <Link to={l.href} style={styles.link}>
+                    {l.label}
+                  </Link>
+                ) : (
+                  <a href={l.href} style={styles.link}>
+                    {l.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
