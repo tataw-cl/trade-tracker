@@ -4,10 +4,27 @@ import { useAuth } from "../contexts/AuthContext";
 
 function Header() {
   const { user, signOut } = useAuth();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
   return (
     <header>
       <nav>
-        <div className="nav-left">
+        {/* mobile hamburger */}
+        <button
+          className="mobile-hamburger"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((s) => !s)}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M3 6h18M3 12h18M3 18h18"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+        <div className="nav-left" data-open={mobileOpen}>
           <h1 className="brand">Trade Tracker</h1>
           <ul>
             <li>
@@ -85,11 +102,16 @@ function Header() {
         <div className="nav-right">
           {user ? (
             <>
-              <div style={{ marginRight: 8, color: "var(--muted)" }}>
-                {user.email}
+              <div
+                className="header-email"
+                style={{ marginRight: 8, color: "var(--muted)" }}
+                title={user.email}
+              >
+                <span className="email-text truncate">{user.email}</span>
               </div>
               <button
                 className="btn btn-ghost"
+                aria-label="Log out"
                 onClick={async () => {
                   try {
                     await signOut();
@@ -126,7 +148,6 @@ function Header() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span>Log out</span>
               </button>
             </>
           ) : (
@@ -139,6 +160,56 @@ function Header() {
               </Link>
             </div>
           )}
+        </div>
+        {/* mobile menu overlay (links) */}
+        <div className={`mobile-menu ${mobileOpen ? "open" : ""}`}>
+          <ul>
+            <li>
+              <Link to="/landing" onClick={() => setMobileOpen(false)}>
+                Checklist
+              </Link>
+            </li>
+            <li>
+              <Link to="/history" onClick={() => setMobileOpen(false)}>
+                History
+              </Link>
+            </li>
+            <li>
+              <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                Dashboard
+              </Link>
+            </li>
+            {user ? (
+              <li>
+                <button
+                  className="btn btn-ghost"
+                  onClick={async () => {
+                    setMobileOpen(false);
+                    try {
+                      await signOut();
+                    } catch (err) {
+                      console.error("Sign out failed:", err);
+                    }
+                  }}
+                >
+                  Log out
+                </button>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>
+                    Sign in
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/signup" onClick={() => setMobileOpen(false)}>
+                    Sign up
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
         </div>
       </nav>
     </header>

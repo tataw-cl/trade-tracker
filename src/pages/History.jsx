@@ -95,7 +95,18 @@ export default function History() {
                     </div>
                     <div className="tiles-preview">
                       {(t.tiles || []).slice(0, 6).map((tile, i) => (
-                        <span key={i} className="tile-tag">
+                        <span
+                          key={i}
+                          className="tile-tag"
+                          title={
+                            tile.name === "Stop Loss & Take Profit" ||
+                            tile.name === "stop loss & take profit"
+                              ? `${tile.name}`
+                              : `${tile.name}: ${Number(
+                                  tile.percentageValue || 0
+                                )}%`
+                          }
+                        >
                           {tile.name === "Stop Loss & Take Profit" ||
                           tile.name === "stop loss & take profit" ? (
                             <>
@@ -117,9 +128,9 @@ export default function History() {
                               </span>
                             </>
                           ) : (
-                            `${tile.name}: ${Number(
+                            <span className="truncate">{`${tile.name}: ${Number(
                               tile.percentageValue || 0
-                            )}%`
+                            )}%`}</span>
                           )}
                         </span>
                       ))}

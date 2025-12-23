@@ -71,6 +71,36 @@ export default function Dashboard() {
 
   const total = balances.reduce((s, b) => s + b.value, 0);
 
+  // Chart data: use the trade `overall` value for each saved trade, ordered by date
+  const sortedTrades = (trades || [])
+    .slice()
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+  const chartLabels = sortedTrades.map((t) =>
+    new Date(t.created_at).toLocaleDateString()
+  );
+  const chartDataPoints = sortedTrades.map((t) => Number(t.overall || 0));
+
+  // Compute occurrence percentages for tile names across the user's trades
+  const tileCounts = {};
+  (trades || []).forEach((t) => {
+    (t.tiles || []).forEach((tile) => {
+      const name = String(tile.name || "").trim() || "Unknown";
+      tileCounts[name] = (tileCounts[name] || 0) + 1;
+    });
+  });
+  const totalTileEntries = Object.values(tileCounts).reduce((s, v) => s + v, 0);
+  const tilePercentages = Object.keys(tileCounts).map((name) => ({
+    name,
+    count: tileCounts[name],
+    percent: totalTileEntries
+      ? Math.round((tileCounts[name] / totalTileEntries) * 100)
+      : 0,
+  }));
+  // sort descending and take top 6
+  tilePercentages.sort((a, b) => b.count - a.count);
+  const topTilePercentages = tilePercentages.slice(0, 6);
+
   return (
     <div className="page-container dashboard-page">
       <Header />
@@ -79,13 +109,13 @@ export default function Dashboard() {
         <div className="page-header">
           <h1>Dashboard</h1>
           <div className="page-actions">
-            <Link to="/new" className="btn btn-primary">
+            <Link to="/landing" className="btn btn-primary">
               New trade
             </Link>
           </div>
         </div>
 
-        <section className="balances">
+        {/* <section className="balances">
           <h2>Balances</h2>
           <div className="balances-row">
             {balances.map((b, i) => (
@@ -112,39 +142,39 @@ export default function Dashboard() {
               <div className="balance-label">Total</div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         <section className="performance">
           <h2>Performance</h2>
+          {/* Top tile occurrence percentages */}
+          <div className="tiles-row" style={{ marginBottom: 12 }}>
+            {topTilePercentages.length === 0 ? (
+              <div className="muted">No trade tiles to summarize yet.</div>
+            ) : (
+              topTilePercentages.map((t, i) => (
+                <div
+                  key={i}
+                  className="stat-card"
+                  style={{ minWidth: 120 }}
+                  title={t.name}
+                >
+                  <div className="stat-value">{t.percent}%</div>
+                  <div className="stat-label" style={{ fontSize: 12 }}>
+                    <span className="truncate">{t.name}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
           <div className="chart-area">
             <Line
               data={{
-                labels: (() => {
-                  if (!trades || trades.length === 0)
-                    return ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-                  // group by day and sort
-                  const map = new Map();
-                  trades.forEach((t) => {
-                    const d = new Date(t.created_at).toLocaleDateString();
-                    const existing = map.get(d) || 0;
-                    map.set(d, existing + Number(t.overall || 0));
-                  });
-                  return Array.from(map.keys()).slice(-12);
-                })(),
+                labels: chartLabels.length ? chartLabels : ["No Data"],
                 datasets: [
                   {
-                    label: "Overall (sum)",
-                    data: (() => {
-                      if (!trades || trades.length === 0)
-                        return [10000, 10250, 10100, 10500, 11000, 11250];
-                      const map = new Map();
-                      trades.forEach((t) => {
-                        const d = new Date(t.created_at).toLocaleDateString();
-                        const existing = map.get(d) || 0;
-                        map.set(d, existing + Number(t.overall || 0));
-                      });
-                      return Array.from(map.values()).slice(-12);
-                    })(),
+                    label: "Overall % per trade",
+                    data: chartDataPoints.length ? chartDataPoints : [0],
                     borderColor: "#3b82f6",
                     backgroundColor: "rgba(59,130,246,0.2)",
                     tension: 0.3,
@@ -158,7 +188,7 @@ export default function Dashboard() {
                   title: { display: false },
                 },
                 scales: {
-                  y: { beginAtZero: false },
+                  y: { beginAtZero: true },
                 },
               }}
             />

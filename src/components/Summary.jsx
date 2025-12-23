@@ -108,9 +108,11 @@ export default function Summary({ tiles = [] }) {
       <div className="tile-body">
         <div className="S-tile-body">
           {tiles.map((t, i) => (
-            <div key={i} className="S-property">
+            <div key={i} className="S-property" title={t.name}>
               <div className="property-left">
-                <div className="property-label">{t.name}</div>
+                <div className="property-label">
+                  <span className="truncate">{t.name}</span>
+                </div>
               </div>
               <div className="property-right">
                 {String(t.name).trim().toLowerCase() ===

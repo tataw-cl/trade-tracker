@@ -96,7 +96,7 @@ export default function Landing() {
       </div>
 
       {/* Summary shows per-tile percentages and overall average */}
-      <div style={{ margin: "0 8% 16px" }}>
+      <div className="summary-wrapper">
         <Summary tiles={tiles} />
       </div>
 
