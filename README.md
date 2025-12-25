@@ -156,5 +156,3 @@ Contributions are welcome. Suggested workflow:
 See the repository root `LICENSE` file for license terms.
 
 ---
-
-If you'd like, I can also create a short git commit message suggestion and optionally run a local commit for this README update — tell me whether you want me to commit these changes.

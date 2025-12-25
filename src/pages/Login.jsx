@@ -29,18 +29,27 @@ export default function Login() {
       <main className="page-main">
         <h2>Sign in</h2>
         <form onSubmit={onSubmit} className="form">
-          <label>
+          <label htmlFor="email" className="sr-only">
             Email
-            <input value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
-          <label>
+          <input
+            id="email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <label htmlFor="password" className="sr-only">
             Password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
           </label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
           <button className="btn btn-primary" type="submit">
             Sign in
           </button>
