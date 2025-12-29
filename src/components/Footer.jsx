@@ -14,7 +14,7 @@ const Footer = ({
     { label: "GitHub", href: "https://github.com/tataw-cl", icon: "github" },
     {
       label: "LinkedIn",
-      href: "https://linkedin.com/tataw-clarkson",
+      href: "www.linkedin.com/in/tataw-clarkson",
       icon: "linkedin",
     },
   ],
