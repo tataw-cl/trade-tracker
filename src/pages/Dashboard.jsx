@@ -102,6 +102,41 @@ export default function Dashboard() {
   tilePercentages.sort((a, b) => b.count - a.count);
   const topTilePercentages = tilePercentages.slice(0, 6);
 
+  // Quick-stats derived from user's trades
+  const quickStats = React.useMemo(() => {
+    if (!trades || trades.length === 0) return null;
+
+    const totalTrades = trades.length;
+    let winCount = 0;
+    let sumOverall = 0; // percent values from `overall`
+    let profitSum = 0; // sum of wins (prefer `pnl` where available, else `overall`)
+    let lossSum = 0; // sum of absolute losses
+
+    trades.forEach((t) => {
+      const overall = Number(t.overall || 0);
+      const pnl = t.pnl !== undefined && t.pnl !== null ? Number(t.pnl) : NaN;
+
+      // Win determination: prefer pnl when available, else use overall percent
+      const isWin = !isNaN(pnl) ? pnl > 0 : overall > 0;
+      if (isWin) winCount += 1;
+
+      sumOverall += !isNaN(overall) ? overall : 0;
+
+      // For profit factor, use pnl when present (currency), otherwise use overall percent
+      const valueForFactor = !isNaN(pnl) ? pnl : overall;
+      if (!isNaN(valueForFactor)) {
+        if (valueForFactor > 0) profitSum += valueForFactor;
+        else if (valueForFactor < 0) lossSum += Math.abs(valueForFactor);
+      }
+    });
+
+    const winRate = totalTrades ? Math.round((winCount / totalTrades) * 100) : 0;
+    const avgReturn = totalTrades ? sumOverall / totalTrades : 0; // percent
+    const profitFactor = lossSum > 0 ? +(profitSum / lossSum).toFixed(2) : profitSum > 0 ? Infinity : 0;
+
+    return { totalTrades, winRate, avgReturn, profitFactor };
+  }, [trades]);
+
   return (
     <div className="page-container dashboard-page">
       <Header />
@@ -115,35 +150,6 @@ export default function Dashboard() {
             </Link>
           </div>
         </div>
-
-        {/* <section className="balances">
-          <h2>Balances</h2>
-          <div className="balances-row">
-            {balances.map((b, i) => (
-              <div className="balance-card" key={i}>
-                <div className="balance-value">
-                  $
-                  {b.value.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </div>
-                <div className="balance-label">{b.account}</div>
-              </div>
-            ))}
-
-            <div className="balance-card total">
-              <div className="balance-value">
-                $
-                {total.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </div>
-              <div className="balance-label">Total</div>
-            </div>
-          </div>
-        </section> */}
 
         <section className="performance">
           <h2>Performance</h2>
@@ -201,20 +207,47 @@ export default function Dashboard() {
         <section className="quick-stats">
           <h2>Quick stats</h2>
           <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-value">62%</div>
-              <div className="stat-label">Win rate</div>
-            </div>
+            {quickStats ? (
+              <>
+                <div className="stat-card">
+                  <div className="stat-value">{quickStats.winRate}%</div>
+                  <div className="stat-label">Win rate</div>
+                </div>
 
-            <div className="stat-card">
-              <div className="stat-value">1.8%</div>
-              <div className="stat-label">Avg return / trade</div>
-            </div>
+                <div className="stat-card">
+                  <div className="stat-value">{quickStats.avgReturn.toFixed(1)}%</div>
+                  <div className="stat-label">Avg return / trade</div>
+                </div>
 
-            <div className="stat-card">
-              <div className="stat-value">2.5x</div>
-              <div className="stat-label">Profit factor</div>
-            </div>
+                <div className="stat-card">
+                  <div className="stat-value">
+                    {isFinite(quickStats.profitFactor)
+                      ? `${quickStats.profitFactor}x`
+                      : quickStats.profitFactor === Infinity
+                      ? "∞"
+                      : "0x"}
+                  </div>
+                  <div className="stat-label">Profit factor</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="stat-card">
+                  <div className="stat-value">62%</div>
+                  <div className="stat-label">Win rate</div>
+                </div>
+
+                <div className="stat-card">
+                  <div className="stat-value">1.8%</div>
+                  <div className="stat-label">Avg return / trade</div>
+                </div>
+
+                <div className="stat-card">
+                  <div className="stat-value">2.5x</div>
+                  <div className="stat-label">Profit factor</div>
+                </div>
+              </>
+            )}
           </div>
         </section>
 
